@@ -1,0 +1,7 @@
+.error {
+    background-color: var(--pico-contrast-background);
+    color: var(--pico-contrast-inverse);
+    padding: 10px;
+    margin: 20px 0;
+    border-radius: var(--pico-border-radius);
+}
