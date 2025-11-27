@@ -3,6 +3,26 @@ import { useMemo } from "react"
 import { JwtContext } from "../providers/jwt/jwtContext"
 import axios from 'axios'
 
+/**
+ * @typedef {Object} Joke
+ * @property {string[]} categories - Categories assigned to the joke (may be empty).
+ * @property {string} created_at - Creation timestamp of the joke.
+ * @property {string} icon_url - URL to the joke's icon/avatar.
+ * @property {string} id - Unique identifier for the joke.
+ * @property {string} updated_at - Last update timestamp of the joke.
+ * @property {string} url - API URL for the joke.
+ * @property {string} value - The joke text (the actual Chuck Norris fact).
+ */
+/**
+ * @typedef {Object} Fact
+ * @property {number} id - Database primary key.
+ * @property {number} user_id - ID of the user who saved the fact.
+ * @property {string} fact_id - External/remote fact identifier.
+ * @property {string} fact - The fact text.
+ * @property {string} lang - Language code for the fact.
+ * @property {Date} ts - Timestamp when the fact was created/saved.
+ */
+
 export const useApi = () => {
     const { token } = useContext(JwtContext)
     
@@ -18,15 +38,22 @@ export const useApi = () => {
             return conf
         })
 
+        /** @returns {Promise<import('axios').AxiosResponse<{ username: string, id: number }>>} */
         const getUserProfile = () => {
             return localApi.get('/api/auth/profile')   
         }
+
+        /** @returns {Promise<import('axios').AxiosResponse<{ token: string, user: { username: string, id: number }}>>} */
         const login = ({ username, password }) => {
             return localApi.post('/api/auth/login', { username, password })
         }
+
+        /** @returns {Promise<import('axios').AxiosResponse<{ token: string, user: { username: string, id: number }}>>} */
         const signin = ({ username, password }) => {
             return localApi.post('/api/auth/signin', { username, password })
         }
+
+        /** @returns {Promise<import('axios').AxiosResponse<{ facts: Fact[], total: number }>>} */
         const getSeenFacts = () => {
             return localApi.get('/api/facts/seen')
         }
@@ -36,13 +63,18 @@ export const useApi = () => {
             baseURL: 'https://api.chucknorris.io'
         })
     
+        /** @returns {Promise<import('axios').AxiosResponse<string[]>>} */
         const getCategories = () => {
-            return chuckNorris.get('/jokes/categories')
+            return chuckNorris.get('/jokes/categories') // string[]
         }
+
+        /** @returns {Promise<import('axios').AxiosResponse<Joke>>} */
         const getRandomFact = ({ category }) => {
-            const url = category ? `/jokes/random&category=${category}` : '/jokes/random'
-            return chuckNorris.get(url)
+            const url = category ? `/jokes/random?category=${category}` : '/jokes/random'
+            return chuckNorris.get(url) 
         }
+
+        /** @returns {Promise<import('axios').AxiosResponse<{ total: number, result: Joke[] }>>} */
         const searchFacts = ({ query }) => {
             return chuckNorris.get(`/jokes/search?query=${query}`)
         }

@@ -4,6 +4,7 @@ import Fastify from 'fastify'
 import { corsPlugin } from 'plugins/cors/cors'
 import { pgDbPlugin } from 'plugins/pgDB/db'
 import { authRoutes } from 'routes/auth/auth'
+import { factsRoutes } from 'routes/facts/facts'
 import { jwtPlugin } from 'plugins/jwt/jwt'
 
 dotenv.config()
@@ -20,6 +21,7 @@ async function main() {
     await fastify.register(jwtPlugin)
 
     await fastify.register(authRoutes, { prefix: '/api/auth' })
+    await fastify.register(factsRoutes, { prefix: '/api/facts' })
 
     try {
         await fastify.listen({ host, port })

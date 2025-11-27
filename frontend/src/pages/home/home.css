@@ -1,0 +1,32 @@
+.home-container {
+    padding: 20px;
+}
+
+.categories-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.category-chip {
+    background-color: var(--pico-form-element-background-color);
+    padding: 10px;
+    border-radius: var(--pico-border-radius);
+    cursor: pointer;
+}
+.category-chip.active {
+  border: var(--pico-border-width) solid var(--pico-secondary-border);
+}
+
+.search-section form {
+    display: flex;
+    gap: 20px;
+}
+
+
+
+.random-fact-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
