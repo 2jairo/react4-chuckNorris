@@ -1,0 +1,26 @@
+.fact-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: var(--pico-border-width) solid var(--pico-secondary-border);
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: var(--pico-border-radius);
+}
+.fact-card-header {
+    display: flex;
+    align-items: top;
+    gap: 20px;
+    
+    img {
+        width: 50px;
+        height: 50px;
+    }
+}
+.fact-card-text {
+    margin: 0;
+}
+.fact-card-categories {
+    display: flex;
+    gap: 20px;
+}

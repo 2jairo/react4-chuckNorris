@@ -10,3 +10,17 @@ services:
     volumes:
       - ./pg_data/data:/var/lib/postgresql/data
       - ./pg_data/init:/docker-entrypoint-initdb.d
+
+
+  libretranslate:
+    container_name: libretranslate
+    image: libretranslate/libretranslate:latest
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', './venv/bin/python scripts/healthcheck.py']
+      interval: 10s
+      timeout: 4s
+      retries: 4
+      start_period: 5s

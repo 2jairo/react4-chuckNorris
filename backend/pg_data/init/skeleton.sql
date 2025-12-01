@@ -5,10 +5,11 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS facts (
-    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    fact_id TEXT NOT NULL,
-    fact TEXT NOT NULL,
+    fact_id VARCHAR(25) NOT NULL,
+    -- fact TEXT NOT NULL,
     lang TEXT NOT NULL,
-    ts TIMESTAMPTZ NOT NULL DEFAULT now()
+    ts TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    PRIMARY KEY (user_id, fact_id)
 );

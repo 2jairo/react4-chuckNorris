@@ -35,26 +35,44 @@ export class Postgres {
     }
 
     // facts
-    async getSeenFacts(userId: number, limit: number, offset: number) {
+    async getSeenFacts(userId: number, facts: string[]) {
+        if(facts.length === 0) return []
         const res = await this.pool.query<Fact>(
-            'SELECT id, user_id, fact_id, fact, lang, ts FROM facts WHERE user_id = $1 ORDER BY ts DESC LIMIT $2 OFFSET $3',
-            [userId, limit, offset]
+            `
+                SELECT user_id, fact_id, lang, ts 
+                FROM facts WHERE user_id = $1 AND fact_id IN ('${facts.join("','")}')
+                ORDER BY ts DESC
+            `,
+            [userId]
         )
         return res.rows
     }
 
-    async getSeenFactsCount(userId: number) {
-        const res = await this.pool.query<{ count: string }>(
-            'SELECT COUNT(*) as count FROM facts WHERE user_id = $1',
-            [userId]
+    async markAsSeen(userId: number, facts: { id: string, lang: string }[]) {
+        if(facts.length === 0) return
+
+        const params: (string | number)[] = [userId]
+        const values: string[] = []
+
+        for (let i = 0; i < facts.length; i++) {
+            const idx = 2 + (i * 2)
+            values.push(`($1, $${idx}, $${idx + 1})`)
+            params.push(facts[i].id, facts[i].lang)
+        }
+
+        await this.pool.query(
+            `
+            INSERT INTO facts (user_id, fact_id, lang) VALUES ${values.join(', ')}
+            ON CONFLICT (user_id, fact_id) DO UPDATE SET ts = now(), lang = EXCLUDED.lang
+            `,
+            params
         )
-        return parseInt(res.rows[0].count)
     }
 
-    async createSeenFact(userId: number, factId: string, fact: string, lang: string) {
+    async createSeenFact(userId: number, factId: string, lang: string) {
         const res = await this.pool.query<Fact>(
-            'INSERT INTO facts (user_id, fact_id, fact, lang) VALUES ($1, $2, $3, $4) RETURNING id, user_id, fact_id, fact, lang, ts',
-            [userId, factId, fact, lang]
+            'INSERT INTO facts (user_id, fact_id, lang) VALUES ($1, $2, $3, $4) RETURNING id, user_id, fact_id, lang, ts',
+            [userId, factId, lang]
         )
         return res.rows[0]
     }

@@ -15,10 +15,8 @@ import axios from 'axios'
  */
 /**
  * @typedef {Object} Fact
- * @property {number} id - Database primary key.
  * @property {number} user_id - ID of the user who saved the fact.
  * @property {string} fact_id - External/remote fact identifier.
- * @property {string} fact - The fact text.
  * @property {string} lang - Language code for the fact.
  * @property {Date} ts - Timestamp when the fact was created/saved.
  */
@@ -53,9 +51,9 @@ export const useApi = () => {
             return localApi.post('/api/auth/signin', { username, password })
         }
 
-        /** @returns {Promise<import('axios').AxiosResponse<{ facts: Fact[], total: number }>>} */
-        const getSeenFacts = () => {
-            return localApi.get('/api/facts/seen')
+        /** @returns {Promise<import('axios').AxiosResponse<{ facts: Fact[] }>>} */
+        const markAsSeen = (facts) => {
+            return localApi.post('/api/facts/mark-as-seen', { facts })
         }
 
         // chucknorris
@@ -69,22 +67,23 @@ export const useApi = () => {
         }
 
         /** @returns {Promise<import('axios').AxiosResponse<Joke>>} */
-        const getRandomFact = ({ category }) => {
+        const getRandomFact = async ({ category }) => {
             const url = category ? `/jokes/random?category=${category}` : '/jokes/random'
-            return chuckNorris.get(url) 
+            return await chuckNorris.get(url)
         }
 
-        /** @returns {Promise<import('axios').AxiosResponse<{ total: number, result: Joke[] }>>} */
+        /** @returns {Promise<import('axios').AxiosResponse<{ result: Joke[], total: number }>>} */
         const searchFacts = ({ query }) => {
             return chuckNorris.get(`/jokes/search?query=${query}`)
         }
+
 
         return {
             local: {
                 getUserProfile,
                 login,
                 signin,
-                getSeenFacts,
+                markAsSeen,
             },
             chuckNorris: {
                 getCategories,
