@@ -16,7 +16,22 @@ export const factsRoutes = fp((fastify, options: RouteCommonOptions) => {
 			const f = await fastify.pg.getSeenFacts(req.user.userId, facts.map(f => f.id))
 			await fastify.pg.markAsSeen(req.user.userId, facts.map(f => ({ id: f.id, lang: f.lang! })))
 
-			return reply.status(200).send({ facts: f })
+			const grouped = new Map<string, { user_id: number; fact_id: string; lang: string[]; ts: Date }>();
+
+			for (const row of f) {
+				const key = `${row.user_id}${row.fact_id}`;
+				const existing = grouped.get(key);
+				if (!existing) {
+					grouped.set(key, { user_id: row.user_id, fact_id: row.fact_id, lang: [row.lang], ts: row.ts });
+				} else {
+					if (!existing.lang.includes(row.lang)) existing.lang.push(row.lang);
+					if (row.ts.getTime() > existing.ts.getTime()) existing.ts = row.ts;
+				}
+			}
+
+			const response = Array.from(grouped.values());
+
+			return reply.status(200).send({ facts: response });
 		}
 	})
 

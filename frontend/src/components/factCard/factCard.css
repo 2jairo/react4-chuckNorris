@@ -20,6 +20,40 @@
 .fact-card-text {
     margin: 0;
 }
+.fact-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.language-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.lang-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--pico-secondary-border);
+    border-radius: var(--pico-border-radius);
+    background: var(--pico-background-color);
+    color: var(--pico-color);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.lang-btn:hover:not(:disabled) {
+    background: var(--pico-secondary-hover);
+    border-color: var(--pico-primary);
+}
+.lang-btn.active {
+    background: var(--pico-primary);
+    color: var(--pico-primary-inverse);
+    border-color: var(--pico-primary);
+}
+.lang-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 .fact-card-categories {
     display: flex;
     gap: 20px;

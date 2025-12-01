@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL DEFAULT ''
 );
-
+ 
 CREATE TABLE IF NOT EXISTS facts (
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     fact_id VARCHAR(25) NOT NULL,
@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS facts (
     lang TEXT NOT NULL,
     ts TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    PRIMARY KEY (user_id, fact_id)
+    PRIMARY KEY (user_id, fact_id, lang)
 );

@@ -1,6 +1,17 @@
+import { useState } from 'react'
+import { LANGUAGES } from '../../lib/languages'
 import './factCard.css'
+import { useEffect } from 'react'
 
-const FactCard = ({ fact }) => {
+const FactCard = ({ fact, onTranslate, onMarkAsSeen }) => {
+    const [translating, setTranslating] = useState(false)
+    const [currentLang, setCurrentLang] = useState('en')
+    const [currentText, setCurrentText] = useState(fact.value)
+
+    useEffect(() => {
+        console.log(fact)
+    }, [fact])
+
     const getTimeAgo = (d) => {
         const date = new Date(d)
         const minsSinceDate = (Date.now() - date.getTime()) / (1000 * 60)
@@ -20,6 +31,26 @@ const FactCard = ({ fact }) => {
         return Math.floor(minsSinceDate / (12 * 30 * 24 * 60)) + 'a'
     }
 
+    const handleTranslate = async (targetLang) => {
+        if (targetLang === currentLang) return
+        
+        setTranslating(true)
+        try {
+            const translatedText = await onTranslate(fact.value, targetLang, currentLang)
+            setCurrentText(translatedText)
+            setCurrentLang(targetLang)
+            
+            // Mark as seen in the new language
+            if (onMarkAsSeen) {
+                await onMarkAsSeen(fact.id, targetLang)
+            }
+        } catch (error) {
+            console.error('Translation error:', error)
+        } finally {
+            setTranslating(false)
+        }
+    }
+
 
     return (
         <div className="fact-card">
@@ -32,23 +63,41 @@ const FactCard = ({ fact }) => {
                         className="fact-card-icon"
                     />
                 )}
-                <p className="fact-card-text">{fact.value}</p>
+                <p className="fact-card-text">{currentText}</p>
             </div>
 
-            {fact.categories.length > 0 && (
-                <div className="fact-card-categories">
-                    {fact.seen && (<>
-                        <code className='fact-category-badge seen'>Visto: {getTimeAgo(fact.ts)}</code>
-                        <code className='fact-category-badge lang'>{fact.lang}</code>
-                    </>)}
-                    
-                    {fact.categories.map((category, index) => (
-                        <code key={index} className="fact-category-badge">
-                            {category}
-                        </code>
+            <div className="fact-card-footer">
+                <div className="language-selector">
+                    {Object.entries(LANGUAGES).map(([code, name]) => (
+                        <button
+                            key={code}
+                            className={`lang-btn ${currentLang === code ? 'active' : ''}`}
+                            onClick={() => handleTranslate(code)}
+                            disabled={translating || currentLang === code}
+                            title={name}
+                        >
+                            {code.toUpperCase()}
+                        </button>
                     ))}
                 </div>
-            )}
+
+                {fact.categories.length > 0 && (
+                    <div className="fact-card-categories">
+                        {fact.seen && (<>
+                            <code className='fact-category-badge seen'>Visto: {getTimeAgo(fact.ts)}</code>
+                            {fact.lang.map((f) => {
+                                return <code key={f} className='fact-category-badge lang'>{f.toUpperCase()}</code>
+                            })}
+                        </>)}
+                        
+                        {fact.categories.map((category, index) => (
+                            <code key={index} className="fact-category-badge">
+                                {category}
+                            </code>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

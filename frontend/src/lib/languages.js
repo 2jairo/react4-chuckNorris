@@ -1,5 +1,8 @@
 export const LANGUAGES = {
-    'eng': 'inglés'
+    'en': 'English',
+    'es': 'Español',
+    'ca': 'Català',
+    'pt': 'Português'
 }
 
-export const DEFAULT_LANG = "eng"
+export const DEFAULT_LANG = "en"

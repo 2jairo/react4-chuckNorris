@@ -62,8 +62,8 @@ export class Postgres {
 
         await this.pool.query(
             `
-            INSERT INTO facts (user_id, fact_id, lang) VALUES ${values.join(', ')}
-            ON CONFLICT (user_id, fact_id) DO UPDATE SET ts = now(), lang = EXCLUDED.lang
+                INSERT INTO facts (user_id, fact_id, lang) VALUES ${values.join(', ')}
+                ON CONFLICT (user_id, fact_id, lang) DO UPDATE SET ts = now()
             `,
             params
         )

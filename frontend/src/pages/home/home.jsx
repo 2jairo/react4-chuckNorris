@@ -53,7 +53,7 @@ const Home = () => {
 
             setRandomFact({
                 ...response.data,
-                lang: seen.data.facts[0]?.lang || DEFAULT_LANG,
+                lang: seen.data.facts[0]?.lang || [DEFAULT_LANG],
                 seen: seen.data.facts[0] ? true : false,
                 ts: seen.data.facts[0]?.ts 
             })
@@ -100,6 +100,50 @@ const Home = () => {
         const newCategory = selectedCategory === category ? null : category
         setSelectedCategory(newCategory)
         fetchRandomFact(newCategory)
+    }
+
+    const handleTranslate = async (text, targetLang, sourceLang) => {
+        try {
+            const response = await api.translate.translateText({
+                text,
+                targetLang,
+                sourceLang
+            })
+            return response.data.translatedText
+        } catch (error) {
+            console.error('Translation failed:', error)
+            throw error
+        }
+    }
+
+    const handleMarkAsSeen = async (factId, lang, set) => {
+        try {
+            const resp = await api.local.markAsSeen([{ id: factId, lang }])
+            if(resp.data.facts.length) {
+                set(resp.data.facts[0])
+            }
+        } catch (error) {
+            console.error('Mark as seen failed:', error)
+        }
+    }
+
+    const updateSearchResultFact = (fId, newFact) => {
+        setSearchResults((prev) => {
+            return {
+                result: [...prev.result.map((f => f.id === fId 
+                    ? { ...f, seen: true, lang: newFact?.lang, ts: newFact?.ts } 
+                    : f
+                ))]
+            }
+        })
+    }
+    const updateRandomFact = (newFact) => {
+        setRandomFact((prev) => ({
+            ...prev,
+            lang: newFact?.lang,
+            seen: true,
+            ts: newFact?.ts
+        }))
     }
 
     return (
@@ -168,7 +212,10 @@ const Home = () => {
                 {loadingRandomFact ? (
                     <div className="loading">Loading...</div>
                 ) : randomFact ? (
-                    <FactCard fact={randomFact} />
+                    <FactCard 
+                        fact={randomFact} 
+                        onTranslate={handleTranslate} 
+                        onMarkAsSeen={(fId, fLang) => handleMarkAsSeen(fId, fLang, updateRandomFact)} />
                 ) : null}
 
             </section>
@@ -185,7 +232,12 @@ const Home = () => {
                     ) : (
                         <div className="facts-grid">
                             {searchResults.result.map((joke) => (
-                                <FactCard key={joke.id} fact={joke} />
+                                <FactCard 
+                                    key={joke.id} 
+                                    fact={joke} 
+                                    onTranslate={handleTranslate} 
+                                    onMarkAsSeen={(fId, fLang) => handleMarkAsSeen(fId, fLang, (newF) => updateSearchResultFact(fId, newF))} 
+                                />
                             ))}
                         </div>
                     )}

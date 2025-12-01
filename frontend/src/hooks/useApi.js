@@ -56,6 +56,27 @@ export const useApi = () => {
             return localApi.post('/api/facts/mark-as-seen', { facts })
         }
 
+        // translation api
+        const translateApi = axios.create({
+            baseURL: 'http://localhost:5000'
+        })
+
+        /**
+         * @param {string} text - Text to translate
+         * @param {string} targetLang - Target language code (es, ca, en, pt)
+         * @param {string} sourceLang - Source language code (default: "auto")
+         * @returns {Promise<import('axios').AxiosResponse<{ detectedLanguage: { confidence: number, language: string }, translatedText: string }>>}
+         */
+        const translateText = ({ text, targetLang, sourceLang = 'auto' }) => {
+            return translateApi.post('/translate', {
+                q: text,
+                source: sourceLang,
+                target: targetLang,
+                format: 'text',
+                alternatives: 0
+            })
+        }
+
         // chucknorris
         const chuckNorris = axios.create({
             baseURL: 'https://api.chucknorris.io'
@@ -89,6 +110,9 @@ export const useApi = () => {
                 getCategories,
                 getRandomFact,
                 searchFacts
+            },
+            translate: {
+                translateText
             }
         }        
     }, [token])
